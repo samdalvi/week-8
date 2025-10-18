@@ -9,7 +9,7 @@ class MarkovText(object):
 
     def __init__(self, corpus):
         self.corpus = corpus
-        self.term_dict = None  # you'll need to build this
+        self.term_dict = None  
 
     def get_term_dict(self):
         """
@@ -26,23 +26,17 @@ class MarkovText(object):
         Returns:
             dict: The term dictionary mapping tokens to lists of following tokens
         """
-        # Use defaultdict to automatically create empty lists for new keys
         self.term_dict = defaultdict(list)
         
-        # Tokenize the corpus by splitting on whitespace
         tokens = self.corpus.split()
         
         # Iterate through the tokens, stopping one before the end
-        # (since the last token has no following token)
         for i in range(len(tokens) - 1):
             current_token = tokens[i]
             next_token = tokens[i + 1]
             
-            # Add the next token to the list of tokens that follow the current token
-            # We keep duplicates to maintain proper transition probabilities
             self.term_dict[current_token].append(next_token)
         
-        # Convert defaultdict back to regular dict as required by the template
         self.term_dict = dict(self.term_dict)
         
         return self.term_dict
@@ -62,21 +56,17 @@ class MarkovText(object):
         Raises:
             ValueError: If the seed_term is not in the corpus
         """
-        # Ensure term_dict exists
         if self.term_dict is None:
             self.get_term_dict()
         
-        # Initialize the result list
         result = []
         
         # Handle the seed term
         if seed_term is not None:
-            # Check if seed_term is in the corpus
             if seed_term not in self.term_dict:
                 raise ValueError(f"Seed term '{seed_term}' not found in corpus")
             current_term = seed_term
         else:
-            # Choose a random starting term from the available keys
             # We only choose from terms that have following terms
             available_starts = [term for term in self.term_dict.keys() if self.term_dict[term]]
             if not available_starts:
@@ -90,16 +80,12 @@ class MarkovText(object):
         for _ in range(term_count - 1):
             # Check if the current term has any following terms
             if current_term not in self.term_dict or not self.term_dict[current_term]:
-                # If we hit a dead end (e.g., the last word in corpus),
-                # we can either stop or pick a new random term to continue
-                # Here we'll pick a new random term to continue generation
                 available_terms = [term for term in self.term_dict.keys() if self.term_dict[term]]
                 if not available_terms:
                     break
                 current_term = np.random.choice(available_terms)
             else:
-                # Choose the next term randomly from the possible following terms
-                # Using numpy.random.choice for random selection
+            
                 possible_next = self.term_dict[current_term]
                 current_term = np.random.choice(possible_next)
             
@@ -135,7 +121,7 @@ def fetch_and_clean_quotes():
         "We forge the chains we wear in life."
         """
     
-    # Clean the quotes (following the notebook's approach)
+    # Clean the quotes 
     quotes = quotes_raw.replace('\n', ' ')
     # Split on any type of quotation mark
     quotes = re.split(r'["\'\u201c\u201d\u2018\u2019]', quotes)   # split on all quote types
